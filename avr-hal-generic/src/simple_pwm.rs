@@ -2,6 +2,8 @@
 
 use core::marker::PhantomData;
 
+use embedded_hal::PwmPin;
+
 use crate::port::mode;
 use crate::port::Pin;
 
@@ -44,7 +46,7 @@ pub trait PwmPinOps<TC> {
     fn get_duty(&self) -> Self::Duty;
     fn get_max_duty(&self) -> Self::Duty;
 
-    fn set_duty(&mut self, value: u8);
+    fn set_duty(&mut self, value: Self::Duty);
 }
 
 pub trait IntoPwmPin<TC, PIN> {
@@ -77,8 +79,32 @@ impl<TC, PIN: PwmPinOps<TC>> Pin<mode::PwmOutput<TC>, PIN> {
         self.pin.get_max_duty()
     }
 
-    pub fn set_duty(&mut self, duty: u8) {
+    pub fn set_duty(&mut self, duty: <PIN as PwmPinOps<TC>>::Duty) {
         self.pin.set_duty(duty);
+    }
+}
+
+impl<TC, PIN> PwmPin for Pin<mode::PwmOutput<TC>, PIN>
+where
+    Pin<mode::PwmOutput<TC>, PIN>: PwmPinOps<TC>,
+{
+    type Duty = <Pin<mode::PwmOutput<TC>, PIN> as PwmPinOps<TC>>::Duty;
+
+    fn enable(&mut self) {
+        PwmPinOps::enable(self)
+    }
+    fn disable(&mut self) {
+        PwmPinOps::disable(self)
+    }
+    fn get_duty(&self) -> Self::Duty {
+        PwmPinOps::get_duty(self)
+    }
+    fn get_max_duty(&self) -> Self::Duty {
+        PwmPinOps::get_max_duty(self)
+    }
+
+    fn set_duty(&mut self, value: Self::Duty) {
+        PwmPinOps::set_duty(self, value)
     }
 }
 

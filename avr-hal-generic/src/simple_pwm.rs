@@ -86,25 +86,25 @@ impl<TC, PIN: PwmPinOps<TC>> Pin<mode::PwmOutput<TC>, PIN> {
 
 impl<TC, PIN> PwmPin for Pin<mode::PwmOutput<TC>, PIN>
 where
-    Pin<mode::PwmOutput<TC>, PIN>: PwmPinOps<TC>,
+    PIN: PwmPinOps<TC>,
 {
-    type Duty = <Pin<mode::PwmOutput<TC>, PIN> as PwmPinOps<TC>>::Duty;
+    type Duty = <PIN as PwmPinOps<TC>>::Duty;
 
     fn enable(&mut self) {
-        PwmPinOps::enable(self)
+        PwmPinOps::enable(&mut self.pin)
     }
     fn disable(&mut self) {
-        PwmPinOps::disable(self)
+        PwmPinOps::disable(&mut self.pin)
     }
     fn get_duty(&self) -> Self::Duty {
-        PwmPinOps::get_duty(self)
+        PwmPinOps::get_duty(&self.pin)
     }
     fn get_max_duty(&self) -> Self::Duty {
-        PwmPinOps::get_max_duty(self)
+        PwmPinOps::get_max_duty(&self.pin)
     }
 
     fn set_duty(&mut self, value: Self::Duty) {
-        PwmPinOps::set_duty(self, value)
+        PwmPinOps::set_duty(&mut self.pin, value)
     }
 }
 
